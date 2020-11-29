@@ -89,10 +89,10 @@ public class Bike {
     @Override
     public String toString() {
         return "BikeId: " + getBikeId() +
-                "\n Type: " + getType() +
-                "\n Gears: " + getGears()+
-                "\n Colour: " + getColour() +
-                "\n Model: " + getModel()+
-                "\n Rates: " + getRates();
+                ", Type: " + getType() +
+                ", Gears: " + getGears()+
+                ", Colour: " + getColour() +
+                ", Model: " + getModel()+
+                ", Rates: " + getRates() + "\n";
     }
 }

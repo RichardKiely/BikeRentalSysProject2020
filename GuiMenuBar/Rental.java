@@ -47,6 +47,6 @@ public class Rental {
         return
                 " BikeRented: " + getBikeRented() +
                 " DateRented: " + getDateRented() +
-                " Date Of Return: " + getDateOfReturn() ;
+                " Date Of Return: " + getDateOfReturn() + "\n" ;
     }
 }

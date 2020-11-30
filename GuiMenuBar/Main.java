@@ -3,11 +3,14 @@ package GuiMenuBar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.*;
 
 public class Main extends JFrame implements ActionListener {
 
    private static ArrayList<Bike> allBikesList;
+   private static ArrayList<Rental> allRentals;
+    ArrayList<Rental> rentBike;
 
     JMenuBar menuBar;
     JMenu bike;
@@ -111,9 +114,20 @@ public class Main extends JFrame implements ActionListener {
 
     }
 
-        public static void main (String[]args){
+        public static void main (String[]args) throws Exception {
 
             new Main();
+
+            File outFile = new File("bikes.data");
+            FileOutputStream outStream = new FileOutputStream(outFile);
+            ObjectOutputStream objectOutStream = new ObjectOutputStream(outStream);
+            objectOutStream.writeObject(allBikesList);
+            outStream.close();
+            File inFile = new File("bikes.data");
+            FileInputStream inStream = new FileInputStream(inFile);
+            ObjectInputStream objectInStream = new ObjectInputStream(inStream);
+            allBikesList = (ArrayList<Bike>) objectInStream.readObject();
+            inStream.close();
 
             Bike b1 = new Bike("MB", 21, "Blue", "Trek", 20, true);
             Bike b2 = new Bike("RC", 18, "White", "Giant", 30, true);
@@ -123,8 +137,7 @@ public class Main extends JFrame implements ActionListener {
 
             allBikesList = new ArrayList<>(Arrays.asList(b1,b2,b3,b4,b5));
 
-           // Rental bikesRented = new Rental();
-
+             allRentals = new ArrayList<>();
 
         }
 
@@ -209,20 +222,27 @@ public class Main extends JFrame implements ActionListener {
                 "Bike Amended",JOptionPane.INFORMATION_MESSAGE);
         foundBike.clear();
     }
-    public static void addBike(ArrayList<Bike> allBikesList){
+    public static void addBike(ArrayList<Bike> allBikesList) {
+
+
 
 
         String addType = JOptionPane.showInputDialog("Please enter the new name for the Bike Type");
+
         int  addGears = Integer.parseInt(JOptionPane.showInputDialog("\nPlease enter the amount of gears the bike has"));
+
         String addColor = JOptionPane.showInputDialog("\nPlease enter the new name for the Bike Type");
+
         String addModel = JOptionPane.showInputDialog("\nPlease enter the new model for the Bike Type");
+
         double  addRate = Double.parseDouble(JOptionPane.showInputDialog("\nPlease enter the new amount of rate the bike costs"));
 
-        Bike b6 = new Bike(addType,addGears,addColor,addModel,addRate,true);
 
-        allBikesList.add(b6);
-        JOptionPane.showMessageDialog(null,"Bike now created and added to array list!",
-                "Bike Added",JOptionPane.INFORMATION_MESSAGE);
+       Bike b6 = new Bike(addType,addGears,addColor,addModel,addRate,true);
+
+       allBikesList.add(b6);
+      JOptionPane.showMessageDialog(null,"Bike now created and added to array list!",
+             "Bike Added",JOptionPane.INFORMATION_MESSAGE);
 
     }
 
@@ -286,21 +306,27 @@ public class Main extends JFrame implements ActionListener {
 
     public static void rentBike(ArrayList<Bike> allBikesList){
 
-        ArrayList<Bike> rentBike = new ArrayList<Bike>();
+        ArrayList<Bike> rentBike = new ArrayList<>();
+
+
         String searchKey = JOptionPane.showInputDialog("Please enter the type of bike you wish to rent example...(MB,RC,El,Kids,HB)");
+
+        String noOfDays = JOptionPane.showInputDialog("Please enter the date you wish to return the bike: YEAR-MM-DATE format");
+
+        String dateRented = JOptionPane.showInputDialog("Please enter the date you wish to rent the bike: YEAR-MM-DATE format");
 
         for(Bike bk: allBikesList)
             if(bk.getType().toLowerCase().contains(searchKey.toLowerCase()))
                 rentBike.add(bk);
 
-        String text="";
+        String str="";
 
         for (Bike bk : rentBike)
             if (bk != null) {
-                text += bk + "\n";
+                str += bk + "\n";
             }
 
-        int searchID = Integer.parseInt(JOptionPane.showInputDialog("The following bikes matched your search \n\n" + text +
+        int searchID = Integer.parseInt(JOptionPane.showInputDialog("The following bikes matched your search \n\n" + str +
                 "\n\nPlease enter the id of the one you want to rent "));
 
         Bike bikeToRent=null;
@@ -309,13 +335,16 @@ public class Main extends JFrame implements ActionListener {
             if (bk != null && bk.getBikeId() ==searchID)
                 bikeToRent = bk;
 
+
         int rentalChoice = JOptionPane.showConfirmDialog(null,"The details of the bike you wish to rent are:\n\n" +
                 bikeToRent + "\n\nAre you sure you wish to rent this bike?","Bike Rental Confirmation",JOptionPane.YES_NO_CANCEL_OPTION);
 
 
+
+        JOptionPane.showMessageDialog(null,"Thanks for using the service I hope you enjoy it.");
+
+
     }
-
-
 
 
     @Override
@@ -325,7 +354,8 @@ public class Main extends JFrame implements ActionListener {
                amendProduct(allBikesList);
             }
             if (e.getSource() == bikeItem2) {
-                addBike(allBikesList);
+
+                    addBike(allBikesList);
             }
             if (e.getSource() == bikeItem3) {
                 removeBike(allBikesList);

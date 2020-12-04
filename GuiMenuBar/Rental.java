@@ -4,10 +4,11 @@ package GuiMenuBar;
 /*An instantiable class definition for an Bike Rental which also demonstrates
 the OO concept of aggregation*/
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-public class Rental extends Bike {
+public class Rental implements Serializable {
 
     private Bike bikeRented;
     private int noOfDays=0;
@@ -15,13 +16,15 @@ public class Rental extends Bike {
     private GregorianCalendar dateRented;
 
 
-    public Rental(String type, int gears, String colour, String model, double rates, boolean rentedBike,Bike bikeRented,int noOfDays,double rentalFeeDaily, GregorianCalendar dateRented) {
-        super(type,gears,colour,model,rates,rentedBike);
+    public Rental(Bike bikeRented,int noOfDays,GregorianCalendar dateRented) {
         setBikeRented(bikeRented);
-       setDateRented(dateRented);
-       setNoOfDays(noOfDays);
+        setNoOfDays(noOfDays);
+        setDateRented(dateRented);
+
 
     }
+
+
 
     public Bike getBikeRented() {
         return bikeRented;
@@ -48,12 +51,13 @@ public class Rental extends Bike {
         this.noOfDays = noOfDays;
     }
 
+
     public double getTotalRentalFee()
     {
-        return noOfDays * rentalFeeDaily;
+        return getNoOfDays() * getRentalFeeDaily(getBikeRented().getType());
     }
 
-    public double getrentalFeeDaily(String type)
+    public double getRentalFeeDaily(String type)
     {
         switch (type)
         {

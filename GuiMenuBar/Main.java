@@ -4,31 +4,34 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Main extends JFrame implements ActionListener {
 
    private static ArrayList<Bike> allBikesList;
    private static ArrayList<Rental> allRentals;
-    ArrayList<Rental> rentBike;
+
 
     JMenuBar menuBar;
     JMenu bike;
     JMenu rental;
     JMenu admin;
 
-    JMenuItem bikeItem1;
-    JMenuItem bikeItem2;
-    JMenuItem bikeItem3;
-    JMenuItem bikeItem4;
-    JMenuItem rentalItem1;
-    JMenuItem rentalItem2;
-    JMenuItem rentalItem3;
-    JMenuItem adminItem1;
-    JMenuItem adminItem2;
+    JMenuItem AmendBike;
+    JMenuItem AddBike;
+    JMenuItem RemoveBike;
+    JMenuItem ViewBike;
+    JMenuItem rentBikeBtn;
+    JMenuItem returnRental;
+    JMenuItem cancelRental;
+    JMenuItem adminYearlyRev;
+    JMenuItem adminAnalyse;
 
     JPanel panel1 = new JPanel();
     JLabel label1 = new JLabel();
+
+    private static File file;
 
     public Main() {
 
@@ -47,6 +50,7 @@ public class Main extends JFrame implements ActionListener {
         panel1.add(label1);
         add(panel1);
 
+
         menuBar = new JMenuBar();
 
         bike = new JMenu("Bikes");
@@ -59,50 +63,50 @@ public class Main extends JFrame implements ActionListener {
         admin.setMnemonic(KeyEvent.VK_A); // ALT A shortcut for admin
 
 
-        bikeItem1 = new JMenuItem("Amend");
-        bikeItem1.setMnemonic(KeyEvent.VK_A); //A shortcut for Amend a bike
-        bikeItem2 = new JMenuItem("Add");
-        bikeItem2.setMnemonic(KeyEvent.VK_D);// B shortcut for Add bike
-        bikeItem3 = new JMenuItem("Remove");
-        bikeItem3.setMnemonic(KeyEvent.VK_R);// R shortcut for Remove
-        bikeItem4 = new JMenuItem("View");
-        bikeItem4.setMnemonic(KeyEvent.VK_V);// R shortcut for View
+        AmendBike = new JMenuItem("Amend");
+        AmendBike.setMnemonic(KeyEvent.VK_A); //A shortcut for Amend a bike
+        AddBike = new JMenuItem("Add");
+        AddBike.setMnemonic(KeyEvent.VK_D);// B shortcut for Add bike
+        RemoveBike = new JMenuItem("Remove");
+        RemoveBike.setMnemonic(KeyEvent.VK_R);// R shortcut for Remove
+        ViewBike = new JMenuItem("View");
+        ViewBike.setMnemonic(KeyEvent.VK_V);// R shortcut for View
 
-        bikeItem1.addActionListener(this);
-        bikeItem2.addActionListener(this);
-        bikeItem3.addActionListener(this);
-        bikeItem4.addActionListener(this);
+        AmendBike.addActionListener(this);
+        AddBike.addActionListener(this);
+        RemoveBike.addActionListener(this);
+        ViewBike.addActionListener(this);
 
-        bike.add(bikeItem1);
-        bike.add(bikeItem2);
-        bike.add(bikeItem3);
-        bike.add(bikeItem4);
+        bike.add(AmendBike);
+        bike.add(AddBike);
+        bike.add(RemoveBike);
+        bike.add(ViewBike);
 
-        rentalItem1 = new JMenuItem("Rent Bike");
-        rentalItem1.setMnemonic(KeyEvent.VK_R); //R shortcut for Rent bike
-        rentalItem2 = new JMenuItem("Return Bike");
-        rentalItem2.setMnemonic(KeyEvent.VK_T); //T shortcut for return bike
-        rentalItem3 = new JMenuItem("Cancel Rental");
-        rentalItem3.setMnemonic(KeyEvent.VK_C); //C shortcut for cancel rental
+        rentBikeBtn = new JMenuItem("Rent Bike");
+        rentBikeBtn.setMnemonic(KeyEvent.VK_R); //R shortcut for Rent bike
+        returnRental = new JMenuItem("Return Bike");
+        returnRental.setMnemonic(KeyEvent.VK_T); //T shortcut for return bike
+        cancelRental = new JMenuItem("Cancel Rental");
+        cancelRental.setMnemonic(KeyEvent.VK_C); //C shortcut for cancel rental
 
-        rentalItem1.addActionListener(this);
-        rentalItem2.addActionListener(this);
-        rentalItem3.addActionListener(this);
+        rentBikeBtn.addActionListener(this);
+        returnRental.addActionListener(this);
+        cancelRental.addActionListener(this);
 
-        rental.add(rentalItem1);
-        rental.add(rentalItem2);
-        rental.add(rentalItem3);
+        rental.add(rentBikeBtn);
+        rental.add(returnRental);
+        rental.add(cancelRental);
 
-        adminItem1 = new JMenuItem("List Yearly Revenue");
-        adminItem1.setMnemonic(KeyEvent.VK_L); //L shortcut for List yearly Rev
-        adminItem2 = new JMenuItem("Analyse Revenue");
-        adminItem2.setMnemonic(KeyEvent.VK_A); //A shortcut for Analyse
+        adminYearlyRev = new JMenuItem("List Yearly Revenue");
+        adminYearlyRev.setMnemonic(KeyEvent.VK_L); //L shortcut for List yearly Rev
+        adminAnalyse = new JMenuItem("Analyse Revenue");
+        adminAnalyse.setMnemonic(KeyEvent.VK_A); //A shortcut for Analyse
 
         admin.addActionListener(this);
         admin.addActionListener(this);
 
-        admin.add(adminItem1);
-        admin.add(adminItem2);
+        admin.add(adminYearlyRev);
+        admin.add(adminAnalyse);
 
         menuBar.add(bike);
         menuBar.add(rental);
@@ -112,34 +116,132 @@ public class Main extends JFrame implements ActionListener {
         this.setJMenuBar(menuBar);
         this.setVisible(true);
 
+        createFileMenu();
+
+        readRentalsFromFile();
+
     }
 
-        public static void main (String[]args) throws Exception {
+        public static void main(String[] args) throws Exception {
 
             new Main();
 
-            File outFile = new File("bikes.data");
-            FileOutputStream outStream = new FileOutputStream(outFile);
-            ObjectOutputStream objectOutStream = new ObjectOutputStream(outStream);
-            objectOutStream.writeObject(allBikesList);
-            outStream.close();
-            File inFile = new File("bikes.data");
-            FileInputStream inStream = new FileInputStream(inFile);
-            ObjectInputStream objectInStream = new ObjectInputStream(inStream);
-            allBikesList = (ArrayList<Bike>) objectInStream.readObject();
-            inStream.close();
 
-            Bike b1 = new Bike("MB", 21, "Blue", "Trek", 20, true);
-            Bike b2 = new Bike("RC", 18, "White", "Giant", 30, true);
-            Bike b3 = new Bike("El", 18, "White", "Cube", 50, true);
-            Bike b4 = new Bike("Kids", 10, "Red", "Rad power", 20, true);
-            Bike b5 = new Bike("HB", 21, "Blue", "Raleigh Activator", 20, true);
+            Bike b1 = new Bike("MB", 21, "Blue", "Trek", 25, true);
+            Bike b2 = new Bike("RC", 18, "White", "Giant", 20, true);
+            Bike b3 = new Bike("El", 18, "White", "Cube", 30, true);
+            Bike b4 = new Bike("Kids", 10, "Red", "Rad power", 10, true);
+            Bike b5 = new Bike("HB", 21, "Blue", "Raleigh Activator", 22, true);
 
             allBikesList = new ArrayList<>(Arrays.asList(b1,b2,b3,b4,b5));
 
-             allRentals = new ArrayList<>();
+            Rental r1 = new Rental(b1,3,new GregorianCalendar(2020,12,03));
+            Rental r2 = new Rental(b2,3,new GregorianCalendar(2020,12,03));
+            Rental r3 = new Rental(b3,3,new GregorianCalendar(2020,12,03));
+
+
+
+            if(!file.exists())
+                allRentals = new ArrayList<>(Arrays.asList(r1,r2,r3));
 
         }
+    public static void saveRentalsToFile() throws IOException {
+
+
+        File outFile = new File("rentals.data");
+        FileOutputStream outStream = new FileOutputStream(outFile);
+        ObjectOutputStream objectOutStream = new ObjectOutputStream(outStream);
+
+
+        for(Rental r: allRentals){
+            System.out.println(r);
+        }
+
+        objectOutStream.writeObject(allRentals);
+        objectOutStream.close();
+        outStream.close();
+
+    }
+    public void createFileMenu() {
+
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int option = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "Confirmation", JOptionPane.YES_NO_OPTION);
+
+                if (option == JOptionPane.YES_OPTION) {
+                    try {
+                        saveRentalsToFile();
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                    JOptionPane.showMessageDialog(null, "Data saved successfully", "Saved", JOptionPane.INFORMATION_MESSAGE);
+
+                    System.exit(0);
+                }
+            }
+        });
+    }
+
+    public  void readRentalsFromFile() {
+
+        try {
+
+             file = new File("rentals.data");
+
+            if(file.exists()) {
+
+                ObjectInputStream is = new ObjectInputStream(new FileInputStream(file));
+                allRentals = (ArrayList<Rental>) is.readObject();
+                is.close();
+
+                for(Rental r: allRentals){
+                    System.out.println(r);
+                }
+
+                JOptionPane.showMessageDialog(null, file.getName() + " file loaded into the system", "Open", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else{
+                file.createNewFile();
+                JOptionPane.showMessageDialog(null, "File just created!!", "Created " + file.getName()+ " file", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+        catch (ClassNotFoundException cnfe) {
+            JOptionPane.showMessageDialog(null,"Class of object deserialized not a match for anything used in this application","Error",JOptionPane.ERROR_MESSAGE);
+            cnfe.printStackTrace();
+        }
+        catch (FileNotFoundException fnfe) {
+            JOptionPane.showMessageDialog(null,"File not found","Error",JOptionPane.ERROR_MESSAGE);
+            fnfe.printStackTrace();
+        }
+        catch (IOException ioe) {
+            JOptionPane.showMessageDialog(null,"Problem reading from the file","Error",JOptionPane.ERROR_MESSAGE);
+            ioe.printStackTrace();
+        }
+    }
+
+    public void saveBikesToFile() throws IOException {
+
+
+        File outFile = new File("bikes.data");
+        FileOutputStream outStream = new FileOutputStream(outFile);
+        ObjectOutputStream objectOutStream = new ObjectOutputStream(outStream);
+        objectOutStream.writeObject(allBikesList);
+        outStream.close();
+
+    }
+
+
+    public static void readBikesFromFile() throws IOException, ClassNotFoundException {
+
+
+        File inFile = new File("bikes.data");
+        FileInputStream inStream = new FileInputStream(inFile);
+        ObjectInputStream objectInStream = new ObjectInputStream(inStream);
+        allBikesList = (ArrayList<Bike>) objectInStream.readObject();
+        inStream.close();
+    }
 
 
     public static void amendProduct(ArrayList<Bike> allBikesList){
@@ -212,7 +314,7 @@ public class Main extends JFrame implements ActionListener {
 
             case "5":
                 int  newRate = Integer.parseInt(JOptionPane.showInputDialog("Please enter the new amount of rate the bike costs"));
-                BikeToAmend.setGears(newRate);
+                BikeToAmend.setRates(newRate);
 
                 break;
 
@@ -223,8 +325,6 @@ public class Main extends JFrame implements ActionListener {
         foundBike.clear();
     }
     public static void addBike(ArrayList<Bike> allBikesList) {
-
-
 
 
         String addType = JOptionPane.showInputDialog("Please enter the new name for the Bike Type");
@@ -248,7 +348,7 @@ public class Main extends JFrame implements ActionListener {
 
     public static void removeBike(ArrayList<Bike> allBikesList) {
 
-        ArrayList<Bike> foundBike = new ArrayList<Bike>();
+        ArrayList<Bike> foundBike = new ArrayList<>();
         String searchKey = JOptionPane.showInputDialog("Please enter the type of bike you wish to remove example...(MB,RC,El,Kids,HB)");
 
         for(Bike bk: allBikesList)
@@ -306,14 +406,19 @@ public class Main extends JFrame implements ActionListener {
 
     public static void rentBike(ArrayList<Bike> allBikesList){
 
+        int i = 0;
         ArrayList<Bike> rentBike = new ArrayList<>();
+
 
 
         String searchKey = JOptionPane.showInputDialog("Please enter the type of bike you wish to rent example...(MB,RC,El,Kids,HB)");
 
-        String noOfDays = JOptionPane.showInputDialog("Please enter the date you wish to return the bike: YEAR-MM-DATE format");
+        int noOfDays =Integer.parseInt(JOptionPane.showInputDialog("Please enter the number of days you wish to rent the bike for? "));
 
-        String dateRented = JOptionPane.showInputDialog("Please enter the date you wish to rent the bike: YEAR-MM-DATE format");
+        String dateRented = JOptionPane.showInputDialog("Please enter the date you wish to rent the bike: dd-MM-yyyy format");
+        int day = Integer.parseInt(dateRented.substring(0, 2));
+        int month = Integer.parseInt(dateRented.substring(3, 5));
+        int year = Integer.parseInt(dateRented.substring(6, 10));
 
         for(Bike bk: allBikesList)
             if(bk.getType().toLowerCase().contains(searchKey.toLowerCase()))
@@ -339,46 +444,84 @@ public class Main extends JFrame implements ActionListener {
         int rentalChoice = JOptionPane.showConfirmDialog(null,"The details of the bike you wish to rent are:\n\n" +
                 bikeToRent + "\n\nAre you sure you wish to rent this bike?","Bike Rental Confirmation",JOptionPane.YES_NO_CANCEL_OPTION);
 
+        Rental r2 = new Rental(bikeToRent,noOfDays,new GregorianCalendar(year,month,day));
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+        allRentals.add(r2);
+        dateFormatter.format(allRentals.get(i).getDateRented().getTime());
+
+        JOptionPane.showMessageDialog(null, "The following Booking details has been added to the system:" +
+                "\n" + r2);
+
+    }
+    public void cancelRental(ArrayList<Rental> allRentals){
+        String allRentalData = "";
+        Rental rt;
+
+        Iterator<Rental> iterator = allRentals.iterator();
+
+        while (iterator.hasNext()) {
+            rt = iterator.next();
+            if (rt != null)
+                allRentalData += rt + "\n";
+        }
 
 
-        JOptionPane.showMessageDialog(null,"Thanks for using the service I hope you enjoy it.");
+        int searchID = Integer.parseInt(JOptionPane.showInputDialog("Here are the rentals \n\n" + allRentalData +
+                "\n\nPlease enter the id of the one you want to cancel "));
+
+        Rental cancelRental=null;
+
+        for (Rental c : allRentals)
+            if (c.getBikeRented().getBikeId() == searchID){
+                cancelRental = c;
+            break;
+        }
+        int removeChoice = JOptionPane.showConfirmDialog(null,"The details of the bike you wish to remove are:\n\n" +
+                cancelRental + "\n\nAre you sure you wish to remove this bike?","Bike Removal Confirmation",JOptionPane.YES_NO_CANCEL_OPTION);
+
+        if(removeChoice==JOptionPane.YES_OPTION) {
+            allRentals.remove(cancelRental);
+            JOptionPane.showMessageDialog(null, "Rental has now been cancelled",
+                    "Rental Cancelled", JOptionPane.INFORMATION_MESSAGE);
+        }
+        else
+            JOptionPane.showMessageDialog(null, "Rental not cancelled",
+                    "Rental not cancelled ", JOptionPane.INFORMATION_MESSAGE);
 
 
     }
 
-
     @Override
         public void actionPerformed (ActionEvent e){
 
-            if (e.getSource() == bikeItem1) {
+            if (e.getSource() == AmendBike) {
                amendProduct(allBikesList);
             }
-            if (e.getSource() == bikeItem2) {
-
+            if (e.getSource() == AddBike) {
                     addBike(allBikesList);
             }
-            if (e.getSource() == bikeItem3) {
+            if (e.getSource() == RemoveBike) {
                 removeBike(allBikesList);
             }
-            if (e.getSource() == bikeItem4) {
-
+            if (e.getSource() == ViewBike) {
                viewProducts(allBikesList);
             }
 
-            if (e.getSource() == rentalItem1) {
+            if (e.getSource() == rentBikeBtn) {
                 rentBike(allBikesList);
             }
-            if (e.getSource() == rentalItem2) {
+            if (e.getSource() == returnRental) {
                 System.out.println("Bike returned");
             }
-            if (e.getSource() == rentalItem3) {
+            if (e.getSource() == cancelRental) {
+                cancelRental(allRentals);
                 System.out.println("Rental Cancelled");
             }
-            if (e.getSource() == adminItem1) {
+            if (e.getSource() == adminYearlyRev) {
                 System.out.println("You did well this year");
             }
 
-            if (e.getSource() == adminItem2) {
+            if (e.getSource() == adminAnalyse) {
                 System.out.println("Well done you made a million");
             }
 
